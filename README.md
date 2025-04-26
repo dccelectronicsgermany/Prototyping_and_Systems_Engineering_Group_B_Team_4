@@ -1,5 +1,4 @@
-This page is generated for purpose of practicing systems engineering designs, prototyping and coding. 
-We represent team 4 members of Group B in HSHL ELE Systems Engineering and Prototyping Course.
+
 
 Members include: 
 
