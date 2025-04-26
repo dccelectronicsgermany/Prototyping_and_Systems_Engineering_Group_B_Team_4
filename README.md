@@ -1,10 +1,8 @@
-- 👋 Hi, I’m @dccelectronicsgermany
-- 👀 I’m interested in improving my coding skills.
-- 🌱 I’m currently learning C / C++
-- 💞️ I’m looking to collaborate on new projects
-- 📫 How to reach me: +4915906620302 or daniel-chidi.chimezie@stud.hshl.de
+This page is generated for purpose of practicing systems engineering designs, prototyping and coding. 
+We represent team 4 members of Group B in HSHL ELE Systems Engineering and Prototyping Course.
 
-<!---
-dccelectronicsgermany/dccelectronicsgermany is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
-You can click the Preview link to take a look at your changes.
---->
+Members include: 
+
+- Daniel Chidi Chimezie (daniel-chidi.chimezie@stud.hshl.de)
+- Bertrand Mungu Cho (bertrand-mungu.cho@stud.hshl.de)
+- Riwaj Ghimire (riwaj.ghimire@stud.hshl.de)
