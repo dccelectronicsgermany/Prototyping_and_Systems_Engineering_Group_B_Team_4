@@ -6,6 +6,7 @@ This project involves the design and implementation of an autonomous vehicle cap
 - Detecting obstacles on its path using ultrasonic sensors.
 - Changing its route dynamically to avoid obstacles while following the lane.
 (without human intervention)
+
 The vehicle uses an Arduino Uno microcontroller and standard robotic hardware components.
  #  Hardware Components
 - Chassis (Robot car frame)
