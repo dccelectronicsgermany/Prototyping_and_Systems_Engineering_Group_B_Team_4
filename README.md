@@ -4,8 +4,10 @@
 This project involves the design and implementation of an autonomous vehicle capable of:
 - Following a lane based on a color using infrared sensors.
 - Detecting obstacles on its path using ultrasonic sensors.
-- Changing its route dynamically to avoid obstacles while continuing to follow the lane.
-The vehicle is built using an Arduino Uno microcontroller and standard robotic hardware components.
+- Changing its route dynamically to avoid obstacles while following the lane.
+(without human intervention)
+
+The vehicle uses an Arduino Uno microcontroller and standard robotic hardware components.
  #  Hardware Components
 - Chassis (Robot car frame)
 - 2 Motor controllers (for driving the wheels)
