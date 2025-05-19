@@ -71,7 +71,7 @@ void loop() {
   Serial.print(" Dist Right: "); Serial.println(distanceRight);
 
   // Obstacle check (only if distance readings are valid)
-  if ((distanceLeft > 0 && distanceLeft < 25) || (distanceRight > 0 && distanceRight < 15)) {
+  if ((distanceLeft > 0 && distanceLeft < 25) || (distanceRight > 0 && distanceRight < 25)) {
     stopMotors();
     Serial.println("Obstacle ahead!");
     avoidObstacle(distanceLeft, distanceRight);
