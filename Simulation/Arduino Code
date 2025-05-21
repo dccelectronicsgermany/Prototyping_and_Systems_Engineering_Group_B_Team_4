@@ -23,6 +23,19 @@ const int S2 = A2;
 const int S3 = A3;
 const int sensorOut = A4;
 
+// PID and motion control
+float Kp = 100;
+int baseSpeed = 180;
+
+// State machine
+enum RobotState {
+  LINE_FOLLOW,
+  OBSTACLE_AVOID,
+  STOPPED
+};
+
+RobotState currentState = LINE_FOLLOW;
+
 // Timing variables
 unsigned long lastColorDetectTime = 0;
 const unsigned long colorDetectInterval = 200; // ms
@@ -61,45 +74,58 @@ void setup() {
 void loop() {
   int leftIR = digitalRead(irLeft);
   int rightIR = digitalRead(irRight);
-
   int distanceLeft = getDistance(trigLeft, echoLeft);
   int distanceRight = getDistance(trigRight, echoRight);
 
-  Serial.print("IR Left: "); Serial.print(leftIR);
-  Serial.print(" Right: "); Serial.print(rightIR);
-  Serial.print(" Dist Left: "); Serial.print(distanceLeft);
-  Serial.print(" Dist Right: "); Serial.println(distanceRight);
-
-  // Obstacle check (only if distance readings are valid)
-  if ((distanceLeft > 0 && distanceLeft < 25) || (distanceRight > 0 && distanceRight < 25)) {
-    stopMotors();
-    Serial.println("Obstacle ahead!");
-    avoidObstacle(distanceLeft, distanceRight);
-  } else {
-    // Line-following logic
-    byte irState = (leftIR << 1) | rightIR;
-
-    switch (irState) {
-      case 0b00:
-        moveForward(200);
-        Serial.println("Moving Forward");
-        break;
-      case 0b01:
-        turnRight(200);
-        Serial.println("Turning Right");
-        break;
-      case 0b10:
-        turnLeft(200);
-        Serial.println("Turning Left");
-        break;
-      case 0b11:
+  switch (currentState) {
+    case LINE_FOLLOW:
+      // Check for obstacle
+      if ((distanceLeft > 0 && distanceLeft < 20) || (distanceRight > 0 && distanceRight < 20)) {
         stopMotors();
-        Serial.println("Lost Line - Stop");
+        Serial.println("Obstacle detected!");
+        currentState = OBSTACLE_AVOID;
         break;
-    }
+      }
+
+      // Proportional line following
+      {
+        int error = 0;
+        if (leftIR == 0 && rightIR == 1) {
+          error = 1;
+        } else if (leftIR == 1 && rightIR == 0) {
+          error = -1;
+        } else {
+          error = 0;
+        }
+
+        int correction = Kp * error;
+        int leftMotorSpeed = constrain(baseSpeed + correction, 0, 255);
+        int rightMotorSpeed = constrain(baseSpeed - correction, 0, 255);
+
+        analogWrite(enA, leftMotorSpeed);
+        analogWrite(enB, rightMotorSpeed);
+        digitalWrite(in1, HIGH); digitalWrite(in2, LOW);
+        digitalWrite(in3, HIGH); digitalWrite(in4, LOW);
+
+        Serial.print("Line Follow | L IR: "); Serial.print(leftIR);
+        Serial.print(" R IR: "); Serial.print(rightIR);
+        Serial.print(" | L Spd: "); Serial.print(leftMotorSpeed);
+        Serial.print(" R Spd: "); Serial.println(rightMotorSpeed);
+      }
+      break;
+
+    case OBSTACLE_AVOID:
+      avoidObstacle(distanceLeft, distanceRight);
+      currentState = LINE_FOLLOW;
+      break;
+
+    case STOPPED:
+      stopMotors();
+      Serial.println("Robot stopped.");
+      break;
   }
 
-  // Non-blocking color detection every 200ms
+  // Non-blocking color detection
   if (millis() - lastColorDetectTime > colorDetectInterval) {
     detectColor();
     lastColorDetectTime = millis();
@@ -123,6 +149,7 @@ int getDistance(int trigPin, int echoPin) {
 
 // --- Obstacle avoidance logic ---
 void avoidObstacle(int distLeft, int distRight) {
+  Serial.println("Avoiding obstacle...");
   if (distLeft < distRight) {
     moveBackward(180);
     delay(300);
@@ -137,6 +164,7 @@ void avoidObstacle(int distLeft, int distRight) {
   moveForward(200);
   delay(400);
   stopMotors();
+  Serial.println("Obstacle avoided.");
 }
 
 // --- Color sensor logic (TCS3200) ---
@@ -158,7 +186,8 @@ void detectColor() {
   Serial.print(" Blue: "); Serial.println(blue);
 
   if (red < green && red < blue) {
-    Serial.println("Red detected");
+    Serial.println("Red detected - stopping");
+    currentState = STOPPED;
   } else if (green < red && green < blue) {
     Serial.println("Green detected");
   } else if (blue < red && blue < green) {
@@ -202,3 +231,4 @@ void stopMotors() {
   digitalWrite(in1, LOW); digitalWrite(in2, LOW);
   digitalWrite(in3, LOW); digitalWrite(in4, LOW);
 }
+
