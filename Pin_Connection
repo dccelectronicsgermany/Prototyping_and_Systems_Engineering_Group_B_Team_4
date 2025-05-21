@@ -1,0 +1,42 @@
+Motor A (Left motor):
+
+enA (Speed control) → Pin 3 (PWM)
+
+in1 (Direction) → Pin 8
+
+in2 (Direction) → Pin 9
+
+Motor B (Right motor):
+
+enB (Speed control) → Pin 5 (PWM)
+
+in3 (Direction) → Pin 10
+
+in4 (Direction) → Pin 11
+
+Left IR sensor output → Pin 2
+
+Right IR sensor output → Pin 4
+
+Ultrasonic Sensors (e.g., HC-SR04):
+Front-Left Sensor:
+
+Trig → Pin 6
+
+Echo → Pin 7
+
+Front-Right Sensor:
+
+Trig → Pin 12
+
+Echo → Pin 13
+
+S0 → Analog Pin A0
+
+S1 → Analog Pin A1
+
+S2 → Analog Pin A2
+
+S3 → Analog Pin A3
+
+OUT → Analog Pin A4
