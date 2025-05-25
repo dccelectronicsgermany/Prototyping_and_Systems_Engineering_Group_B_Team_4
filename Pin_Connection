@@ -6,6 +6,10 @@ in1 (Direction) → Pin 8
 
 in2 (Direction) → Pin 9
 
+Motor A wire → OUT1
+
+Motor A wire → OUT2
+
 Motor B (Right motor):
 
 enB (Speed control) → Pin 5 (PWM)
@@ -13,6 +17,10 @@ enB (Speed control) → Pin 5 (PWM)
 in3 (Direction) → Pin 10
 
 in4 (Direction) → Pin 11
+
+Motor B wire → OUT3
+
+Motor B wire → OUT4
 
 Left IR sensor output → Pin 2
 
