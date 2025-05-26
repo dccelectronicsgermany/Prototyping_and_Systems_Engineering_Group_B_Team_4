@@ -1,161 +1,46 @@
-// Motor control pins
-const int enA = 3;  // PWM
-const int in1 = 8;
-const int in2 = 9;
-const int enB = 5;  // PWM
-const int in3 = 10;
-const int in4 = 11;
+// Motor 1 pins
+const int motorPin1 = 9;
+const int motorPin2 = 8;
 
-// IR sensors
-const int irLeft = 2;
-const int irRight = 4;
+// Motor 2 pins
+const int motorPin3 = 7;
+const int motorPin4 = 6;
 
-// Ultrasonic front-left and front-right sensors
-const int trigLeft = 6;
-const int echoLeft = 7;
-const int trigRight = 12;
-const int echoRight = 13;
+// Speed setting (0 to 255)
+int speed = 180;
 
-// Motor speed
-const int MOTOR_SPEED = 180;
-
-// Timing variables for non-blocking ultrasonic check
-unsigned long lastObstacleCheck = 0;
-const unsigned long obstacleCheckInterval = 200;  // ms
-bool obstacleDetected = false;
-
-// Movement state enum
-enum MovementState { STOP, FORWARD, TURN_LEFT, TURN_RIGHT };
-MovementState currentState = STOP;
+// Delay durations
+int runTime = 2000;  // 2 seconds running
+int pauseTime = 200; // 0.2 seconds pause
 
 void setup() {
-  Serial.begin(9600);
+  // Set all motor pins as OUTPUT
+  pinMode(motorPin1, OUTPUT);
+  pinMode(motorPin2, OUTPUT);
+  pinMode(motorPin3, OUTPUT);
+  pinMode(motorPin4, OUTPUT);
+}
 
-  // Motor pins
-  pinMode(enA, OUTPUT);
-  pinMode(in1, OUTPUT);
-  pinMode(in2, OUTPUT);
-  pinMode(enB, OUTPUT);
-  pinMode(in3, OUTPUT);
-  pinMode(in4, OUTPUT);
-
-  // IR sensors
-  pinMode(irLeft, INPUT);
-  pinMode(irRight, INPUT);
-
-  // Ultrasonic sensors
-  pinMode(trigLeft, OUTPUT);
-  pinMode(echoLeft, INPUT);
-  pinMode(trigRight, OUTPUT);
-  pinMode(echoRight, INPUT);
-
-  stopMotors();
+// Function to run a motor in a specific direction
+void runMotor(int pinA, int pinB, int speed, int duration) {
+  analogWrite(pinA, speed);
+  analogWrite(pinB, 0);
+  delay(duration);
+  analogWrite(pinA, 0);
+  analogWrite(pinB, 0);
+  delay(pauseTime);
 }
 
 void loop() {
-  unsigned long currentMillis = millis();
+  // Motor 1 forward
+  runMotor(motorPin1, motorPin2, speed, runTime);
 
-  // Check obstacle every obstacleCheckInterval ms (non-blocking)
-  if (currentMillis - lastObstacleCheck >= obstacleCheckInterval) {
-    int distanceLeft = getDistance(trigLeft, echoLeft);
-    int distanceRight = getDistance(trigRight, echoRight);
+  // Motor 1 reverse
+  runMotor(motorPin2, motorPin1, speed, runTime);
 
-    obstacleDetected = ((distanceLeft > 0 && distanceLeft < 25) ||
-                        (distanceRight > 0 && distanceRight < 25));
-    lastObstacleCheck = currentMillis;
-  }
+  // Motor 2 forward
+  runMotor(motorPin3, motorPin4, speed, runTime);
 
-  // Determine current state
-  if (obstacleDetected) {
-    currentState = STOP;
-  } else {
-    int leftIR = digitalRead(irLeft);
-    int rightIR = digitalRead(irRight);
-
-    if ((leftIR == LOW && rightIR == LOW) || (leftIR == HIGH && rightIR == HIGH)) {
-      currentState = FORWARD;
-    } else if (rightIR == HIGH && leftIR == LOW) {
-      currentState = TURN_RIGHT;
-    } else if (rightIR == LOW && leftIR == HIGH) {
-      currentState = TURN_LEFT;
-    } else {
-      currentState = STOP;
-    }
-  }
-
-  // Act on current state
-  switch (currentState) {
-    case STOP:
-      stopMotors();
-      Serial.println("Obstacle detected or unknown state! Stopping.");
-      break;
-
-    case FORWARD:
-      setMotorSpeed(MOTOR_SPEED, MOTOR_SPEED);
-      break;
-
-    case TURN_LEFT:
-      setMotorSpeed(MOTOR_SPEED, -MOTOR_SPEED);
-      break;
-
-    case TURN_RIGHT:
-      setMotorSpeed(-MOTOR_SPEED, MOTOR_SPEED);
-      break;
-  }
-}
-
-// Read distance using ultrasonic sensor (non-blocking within pulseIn timeout)
-int getDistance(int trigPin, int echoPin) {
-  digitalWrite(trigPin, LOW);
-  delayMicroseconds(2);
-  digitalWrite(trigPin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trigPin, LOW);
-
-  long duration = pulseIn(echoPin, HIGH, 10000);  // 10ms timeout
-  if (duration == 0) return -1;  // no echo received
-  int cm = duration * 0.034 / 2;
-  if (cm < 2 || cm > 400) return -1;  // out of range
-  return cm;
-}
-
-// Set direction and speed for both motors
-void setMotorSpeed(int leftSpeed, int rightSpeed) {
-  // Left motor
-  if (leftSpeed > 0) { 
-    digitalWrite(in1, HIGH);
-    digitalWrite(in2, LOW);
-  } else if (leftSpeed < 0) {
-    digitalWrite(in1, LOW);
-    digitalWrite(in2, HIGH);
-  } else {
-    digitalWrite(in1, LOW);
-    digitalWrite(in2, LOW);
-  }
-
-  // Right motor
-  if (rightSpeed > 0) {
-    digitalWrite(in3, HIGH);
-    digitalWrite(in4, LOW);
-  } else if (rightSpeed < 0) {
-    digitalWrite(in3, LOW);
-    digitalWrite(in4, HIGH);
-  } else {
-    digitalWrite(in3, LOW);
-    digitalWrite(in4, LOW);
-  }
-
-  // Apply speed with PWM
-  analogWrite(enA, abs(leftSpeed));
-  analogWrite(enB, abs(rightSpeed));
-}
-
-// Stop all motor movement
-void stopMotors() {
-  analogWrite(enA, 0);
-  analogWrite(enB, 0);
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, LOW);
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, LOW);
+  // Motor 2 reverse
+  runMotor(motorPin4, motorPin3, speed, runTime);
 }
