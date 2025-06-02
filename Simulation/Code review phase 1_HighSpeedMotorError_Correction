@@ -1,0 +1,46 @@
+// Motor 1 pins
+const int motorPin1 = 9;
+const int motorPin2 = 8;
+
+// Motor 2 pins
+const int motorPin3 = 7;
+const int motorPin4 = 6;
+
+// Speed setting (0 to 255)
+int speed = 180;
+
+// Delay durations
+int runTime = 2000;  // 2 seconds running
+int pauseTime = 200; // 0.2 seconds pause
+
+void setup() {
+  // Set all motor pins as OUTPUT
+  pinMode(motorPin1, OUTPUT);
+  pinMode(motorPin2, OUTPUT);
+  pinMode(motorPin3, OUTPUT);
+  pinMode(motorPin4, OUTPUT);
+}
+
+// Function to run a motor in a specific direction
+void runMotor(int pinA, int pinB, int speed, int duration) {
+  analogWrite(pinA, speed);
+  analogWrite(pinB, 0);
+  delay(duration);
+  analogWrite(pinA, 0);
+  analogWrite(pinB, 0);
+  delay(pauseTime);
+}
+
+void loop() {
+  // Motor 1 forward
+  runMotor(motorPin1, motorPin2, speed, runTime);
+
+  // Motor 1 reverse
+  runMotor(motorPin2, motorPin1, speed, runTime);
+
+  // Motor 2 forward
+  runMotor(motorPin3, motorPin4, speed, runTime);
+
+  // Motor 2 reverse
+  runMotor(motorPin4, motorPin3, speed, runTime);
+}
