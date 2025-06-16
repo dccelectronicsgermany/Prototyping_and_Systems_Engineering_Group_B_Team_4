@@ -25,6 +25,7 @@ const int sensorOut = A4;
 
 // Motor speed (lowered for 12V LiPo)
 const int MOTOR_SPEED = 100;
+const int TURN_SPEED = 60;
 
 // PID constants
 float Kp = 10.0;
@@ -296,7 +297,7 @@ int readFrequency(bool s2, bool s3) {
 
 void avoidObstacle() {
   // Step 1: Pivot right to avoid obstacle
-  setMotorSpeed(60, 60/2);
+  setMotorSpeed(TURN_SPEED, TURN_SPEED/2);
   delay(700);
 
   // Step 2: Move forward past the obstacle
@@ -304,7 +305,7 @@ void avoidObstacle() {
   delay(1000);
 
   // Step 3: Pivot left to realign with the original path
-  setMotorSpeed(60/2, 60);
+  setMotorSpeed(TURN_SPEED/2, TURN_SPEED);
   delay(700);
 
   // Step 4: Move forward and look for the line
@@ -337,7 +338,7 @@ void avoidObstacle() {
     stopMotors();
 
     // Sweep left
-    setMotorSpeed(-60, 60);
+    setMotorSpeed(-TURN_SPEED, TURN_SPEED);
     delay(500);
     stopMotors();
 
@@ -350,7 +351,7 @@ void avoidObstacle() {
     }
 
     // Sweep right
-    setMotorSpeed(60, -60);
+    setMotorSpeed(TURN_SPEED, -TURN_SPEED);
     delay(1000);
     stopMotors();
 
@@ -363,7 +364,7 @@ void avoidObstacle() {
     }
 
     // Return to center
-    setMotorSpeed(-60, 60);
+    setMotorSpeed(-TURN_SPEED, TURN_SPEED);
     delay(500);
     stopMotors();
   }
