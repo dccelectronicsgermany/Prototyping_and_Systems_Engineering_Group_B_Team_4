@@ -101,7 +101,7 @@ void loop() {
   runMotor(enB, in4, in3, speed, runTime, "Motor B", REVERSE, prevMotorBState);
 }
 
-Motor test starting...
+//Motor test starting...
 Motor A changing phase to FORWARD
 Running Motor A forward at speed 180
 Motor A stopped
@@ -114,4 +114,4 @@ Motor B stopped
 Motor B changing phase to REVERSE
 Running Motor B reverse at speed 180
 Motor B stopped
-...
+...//
