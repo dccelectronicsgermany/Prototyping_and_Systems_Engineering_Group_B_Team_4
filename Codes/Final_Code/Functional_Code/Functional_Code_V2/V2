@@ -1,0 +1,67 @@
+// ... (previous code remains the same until actOnState function) ...
+
+void actOnState(MovementState state, int leftIR, int rightIR) {
+  switch (state) {
+    case STOP:
+      stopMotors();
+      break;
+
+    case FORWARD: {
+      // PID line-following
+      int error = leftIR - rightIR;
+      float derivative = error - previousError;
+      integral += error;
+      float correction = Kp * error + Ki * integral + Kd * derivative;
+      previousError = error;
+
+      int baseSpeed = MOTOR_SPEED;
+      int leftSpeed = constrain(baseSpeed - correction, 0, 255);
+      int rightSpeed = constrain(baseSpeed + correction, 0, 255);
+      setMotorSpeed(leftSpeed, rightSpeed);
+      break;
+    }
+
+    case SEARCH_LEFT:
+      setMotorSpeed(-80, 80);  // Pivot left
+      break;
+
+    case SEARCH_RIGHT:
+      setMotorSpeed(80, -80);  // Pivot right
+      break;
+
+    // MODIFIED: Green obstacle sequence with 50% speed
+    case GREEN_BACKWARD:
+      // Move backward at 50% speed
+      setMotorSpeed(-MOTOR_SPEED/2, -MOTOR_SPEED/2);
+      if (millis() - sequenceStartTime >= 5000) {
+        currentState = GREEN_MOVE_LEFT;
+        sequenceStartTime = millis();
+      }
+      break;
+
+    case GREEN_MOVE_LEFT:
+      // Move forward-left at 30 degrees with 50% speed
+      setMotorSpeed(MOTOR_SPEED * 0.7 * 0.5, MOTOR_SPEED * 0.5);
+      if (millis() - sequenceStartTime >= 5000) {
+        currentState = GREEN_TURN_RIGHT;
+        sequenceStartTime = millis();
+      }
+      break;
+
+    case GREEN_TURN_RIGHT:
+      // Turn right at 50% speed to find the line
+      setMotorSpeed(TURN_SPEED * 0.5, -TURN_SPEED * 0.5);
+      // Check for line detection
+      if (leftIR == HIGH || rightIR == HIGH) {
+        currentState = FORWARD;
+        previousError = 0; // Reset PID
+        integral = 0;
+      } else if (millis() - sequenceStartTime >= 10000) {
+        // Timeout after 10 seconds
+        currentState = STOP;
+      }
+      break;
+  }
+}
+
+// ... (rest of the code remains the same) ...
