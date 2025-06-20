@@ -181,7 +181,7 @@ void avoidObstacle() {
   // Step 0: Move slightly backward
   Serial.println("Avoiding obstacle: Reversing...");
   setMotorSpeed(-MOTOR_SPEED, -MOTOR_SPEED);
-  delay(600);
+  delay(300);
 
   stopMotors();
 
@@ -195,7 +195,7 @@ void avoidObstacle() {
   // Step 2: Move forward to clear the obstacle
   Serial.println("Moving forward to bypass obstacle...");
   setMotorSpeed(MOTOR_SPEED/1.8, MOTOR_SPEED/1.8);
-  delay(1000);
+  delay(1500);
 
   stopMotors();
 
