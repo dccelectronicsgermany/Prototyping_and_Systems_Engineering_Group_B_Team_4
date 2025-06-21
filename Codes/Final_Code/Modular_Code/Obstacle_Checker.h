@@ -3,42 +3,31 @@
 
 #include "Ultrasonic_Sensor.h"
 #include "Color_Sensor.h"
-#include "Motor_Controller.h"
-#include "Movement_Controller.h"
-#include "Obstacle_Handler.h"
-#include "Movement_Types.h"
 
 class ObstacleChecker {
-  public:
-    ObstacleChecker(UltrasonicSensor& leftUltrasonic,
-                    UltrasonicSensor& rightUltrasonic,
-                    ColorSensor& colorSensor,
-                    MotorController& motorController,
-                    MovementController& movementController,
-                    ObstacleHandler& obstacleHandler);
+public:
+  ObstacleChecker(UltrasonicSensor& leftU, UltrasonicSensor& rightU, ColorSensor& cs);
 
-    void check();
-    void setColorCalibration(const ColorCalibration& a, const ColorCalibration& b);
-    bool isObstacleDetected() const;
-    char getLastDetectedColor() const;
+  void setColorCalibration(const ColorCalibration& a, const ColorCalibration& b);
+  void check();
 
-  private:
-    UltrasonicSensor& leftUltrasonic;
-    UltrasonicSensor& rightUltrasonic;
-    ColorSensor& colorSensor;
-    MotorController& motorController;
-    MovementController& movementController;
-    ObstacleHandler& obstacleHandler;
+  bool isObstacleDetected() const;
+  char getLastDetectedColor() const;
 
-    ColorCalibration colorA;
-    ColorCalibration colorB;
+private:
+  UltrasonicSensor& leftUltrasonic;
+  UltrasonicSensor& rightUltrasonic;
+  ColorSensor& colorSensor;
 
-    unsigned long lastCheck = 0;
-    static constexpr unsigned long interval = 200;
+  ColorCalibration colorA;
+  ColorCalibration colorB;
 
-    bool obstacleDetected = false;
-    bool colorDetectedThisCycle = false;
-    char lastDetectedColor = 'N';
+  bool obstacleDetected = false;
+  bool colorDetectedThisCycle = false;
+  char lastDetectedColor = 'N';
+
+  unsigned long lastCheck = 0;
+  const unsigned long interval = 200;
 };
 
 #endif
