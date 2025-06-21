@@ -2,23 +2,32 @@
 #define OBSTACLE_HANDLER_H
 
 #include "Motor_Controller.h"
+#include "Movement_Controller.h"
+#include "Obstacle_Checker.h"
 #include "IR_Sensor.h"
-#include "Movement_Types.h"
-
 
 class ObstacleHandler {
-  public:
-    ObstacleHandler(MotorController& motorCtrl, IRSensor& leftIR, IRSensor& rightIR,
-                    MovementState& stateRef, LastSeen& lastSeenRef);
+public:
+  ObstacleHandler(MotorController& mc,
+                  MovementController& mv,
+                  ObstacleChecker& checker,
+                  IRSensor& leftIR,
+                  IRSensor& rightIR);
 
-    void avoidObstacle(int motorSpeed, int turnSpeed);
+  void handleObstacle();
 
-  private:
-    MotorController& motorController;
-    IRSensor& leftIRSensor;
-    IRSensor& rightIRSensor;
-    MovementState& currentState;
-    LastSeen& lastSeenLine;
+private:
+  MotorController& motorController;
+  MovementController& movementController;
+  ObstacleChecker& obstacleChecker;
+  IRSensor& leftIRSensor;
+  IRSensor& rightIRSensor;
+
+  void reverse(unsigned long duration);
+  void pivotLeft(unsigned long duration);
+  void pivotRight(unsigned long duration);
+  void moveForward(unsigned long duration);
+  bool searchForLine(unsigned long maxDuration);
 };
 
 #endif
