@@ -7,10 +7,7 @@ void UltrasonicSensor::begin() {
 
 
 UltrasonicSensor::UltrasonicSensor(uint8_t trigPin, uint8_t echoPin)
-  : _trigPin(trigPin), _echoPin(echoPin) {
-  pinMode(_trigPin, OUTPUT);
-  pinMode(_echoPin, INPUT);
-}
+  : _trigPin(trigPin), _echoPin(echoPin) {}
 
 int UltrasonicSensor::getDistance() {
   digitalWrite(_trigPin, LOW);
