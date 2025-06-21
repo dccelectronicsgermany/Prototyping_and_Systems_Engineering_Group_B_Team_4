@@ -18,7 +18,7 @@ char ObstacleChecker::getLastDetectedColor() const {
   return lastDetectedColor;
 }
 
-void ObstacleChecker::check() {
+void ObstacleChecker::check(bool shouldStopBeforeColorDetection) {
   unsigned long currentMillis = millis();
   if (currentMillis - lastCheck < interval) return;
 
@@ -30,7 +30,11 @@ void ObstacleChecker::check() {
                      (distanceRight > 0 && distanceRight < 25);
 
   if (obstacleNow && !colorDetectedThisCycle) {
-    Serial.println("Obstacle detected, checking color...");
+    if (shouldStopBeforeColorDetection) {
+      Serial.println("Obstacle detected. Waiting before detecting color...");
+      delay(100);  // Give robot time to settle if caller already stopped it
+    }
+
     lastDetectedColor = colorSensor.detectColor(colorA, colorB);
     colorDetectedThisCycle = true;
   } else if (!obstacleNow) {
