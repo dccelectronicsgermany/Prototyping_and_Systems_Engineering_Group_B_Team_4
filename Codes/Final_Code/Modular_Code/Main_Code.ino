@@ -48,14 +48,11 @@ PIDController pid(10.0, 0.0, 10.0);
 
 // === Movement & Obstacle Controllers ===
 MovementController movementController(motorController, leftIRSensor, rightIRSensor, pid);
-ObstacleHandler obstacleHandler(motorController, leftIRSensor, rightIRSensor,
-                                 movementController.getCurrentStateRef(), movementController.getLastSeenRef());
-ObstacleChecker obstacleChecker(leftUltrasonic, rightUltrasonic, colorSensor, motorController,
-                                 movementController, obstacleHandler);
+ObstacleChecker obstacleChecker(leftUltrasonic, rightUltrasonic, colorSensor);
+ObstacleHandler obstacleHandler(motorController, movementController, obstacleChecker,
+                                leftIRSensor, rightIRSensor);
 
-// === Motion Constants ===
-constexpr int MOTOR_SPEED = 100;
-constexpr int TURN_SPEED = 60;
+
 
 // === Color Calibration Data ===
 ColorCalibration colorA = {0.595, 0.585};
@@ -78,17 +75,44 @@ void setup() {
 }
 
 void loop() {
-  // Check for obstacles and determine action
+  // Check for obstacle
   obstacleChecker.check();
 
-  // Update movement decision based on sensor input
-  movementController.updateState(
-    obstacleChecker.isObstacleDetected(),
-    obstacleChecker.getLastDetectedColor(),
-    movementController.getCurrentStateRef(),
-    movementController.getLastSeenRef()
-  );
+  if (obstacleChecker.isObstacleDetected()) {
+    motorController.stop();
+    delay(100);
+    obstacleChecker.check(false);  // Detect color while stopped
 
-  // Act based on the determined movement state
+    char color = obstacleChecker.getLastDetectedColor();
+    if (color == 'A') {
+      Serial.println("Action: STOP for Color A");
+      movementController.setCurrentState(STOP);
+    } else if (color == 'B') {
+      Serial.println("Action: AVOID OBSTACLE for Color B");
+      obstacleHandler.handleObstacle();
+    }
+    return;  // Skip line-following for this cycle
+  }
+
+  // No obstacle, continue with line following
+  bool leftIR = leftIRSensor.isLineDetected();
+  bool rightIR = rightIRSensor.isLineDetected();
+
+  // Update last seen line position
+  if (leftIR && !rightIR) movementController.getLastSeenRef() = LEFT;
+  else if (rightIR && !leftIR) movementController.getLastSeenRef() = RIGHT;
+
+  // Determine current movement state
+  if (!leftIR && !rightIR) {
+    LastSeen lastSeen = movementController.getLastSeenRef();
+    if (lastSeen == LEFT) movementController.setCurrentState(SEARCH_LEFT);
+    else if (lastSeen == RIGHT) movementController.setCurrentState(SEARCH_RIGHT);
+    else movementController.setCurrentState(STOP);
+  } else {
+    movementController.setCurrentState(FORWARD);
+  }
+
+  // Execute movement
   movementController.act(movementController.getCurrentState());
 }
+
