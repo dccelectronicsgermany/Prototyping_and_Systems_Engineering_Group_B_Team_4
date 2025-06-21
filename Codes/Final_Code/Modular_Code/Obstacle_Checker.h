@@ -9,7 +9,7 @@ public:
   ObstacleChecker(UltrasonicSensor& leftU, UltrasonicSensor& rightU, ColorSensor& cs);
 
   void setColorCalibration(const ColorCalibration& a, const ColorCalibration& b);
-  void check();
+  void check(bool shouldStopBeforeColorDetection = true);
 
   bool isObstacleDetected() const;
   char getLastDetectedColor() const;
