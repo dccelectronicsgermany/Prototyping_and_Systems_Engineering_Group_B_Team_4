@@ -93,35 +93,8 @@ void loop() {
   unsigned long currentMillis = millis();
 
   // Obstacle detection
-  if (currentMillis - lastObstacleCheck >= obstacleCheckInterval) {
-    int distanceLeft = getDistance(trigLeft, echoLeft);
-    int distanceRight = getDistance(trigRight, echoRight);
+  checkobstacle();
 
-    bool obstacleNow = ((distanceLeft > 0 && distanceLeft < 25) ||
-                        (distanceRight > 0 && distanceRight < 25));
-
-    if (obstacleNow && !colorDetectedForThisObstacle) {
-      stopMotors();
-      char detected = detectColor();
-      lastDetectedColor = detected;
-      colorDetectedForThisObstacle = true;
-
-      if (detected == 'A') {
-        Serial.println("Action: STOP for Color A");
-        currentState = STOP;
-        return;
-      } else if (detected == 'B') {
-        Serial.println("Action: AVOID OBSTACLE for Color B");
-        avoidObstacle();
-      }
-    } else if (!obstacleNow) {
-      colorDetectedForThisObstacle = false;
-      lastDetectedColor = 'N';
-    }
-
-    obstacleDetected = obstacleNow;
-    lastObstacleCheck = currentMillis;
-  }
 
   // IR reading
   int leftIR = digitalRead(irLeft);
@@ -177,63 +150,132 @@ void actOnState(MovementState state, int leftIR, int rightIR) {
   }
 }
 
+void checkobstacle() {
+  unsigned long currentMillis = millis();
+
+  if (currentMillis - lastObstacleCheck >= obstacleCheckInterval) {
+    int distanceLeft = getDistance(trigLeft, echoLeft);
+    int distanceRight = getDistance(trigRight, echoRight);
+
+    bool obstacleNow = ((distanceLeft > 0 && distanceLeft < 25) ||
+                        (distanceRight > 0 && distanceRight < 25));
+
+    if (obstacleNow && !colorDetectedForThisObstacle) {
+      stopMotors();
+      char detected = detectColor();
+      lastDetectedColor = detected;
+      colorDetectedForThisObstacle = true;
+
+      if (detected == 'A') {
+        Serial.println("Action: STOP for Color A");
+        currentState = STOP;
+        return;
+      } else if (detected == 'B') {
+        Serial.println("Action: AVOID OBSTACLE for Color B");
+        avoidObstacle();
+      }
+    } else if (!obstacleNow) {
+      colorDetectedForThisObstacle = false;
+      lastDetectedColor = 'N';
+    }
+
+    obstacleDetected = obstacleNow;
+    lastObstacleCheck = currentMillis;
+  }
+}
+
 void avoidObstacle() {
-  // Step 0: Move slightly backward
   Serial.println("Avoiding obstacle: Reversing...");
   setMotorSpeed(-MOTOR_SPEED, -MOTOR_SPEED);
-  delay(300);
 
+  // Reverse for 300ms while continuously checking obstacles but NOT checking line sensors
+  unsigned long startTime = millis();
+  while (millis() - startTime < 300) {
+    checkobstacle();
+    delay(10);
+  }
   stopMotors();
 
-  // Step 1: Pivot left to steer away from obstacle
+  // Pivot left for 500ms with obstacle checking
   Serial.println("Pivoting left...");
   setMotorSpeed(-TURN_SPEED, TURN_SPEED);
-  delay(300);
-
+  startTime = millis();
+  while (millis() - startTime < 500) {
+    checkobstacle();
+    delay(10);
+  }
   stopMotors();
 
-  // Step 2: Move forward to clear the obstacle
+  // Move forward half speed for 500ms with line search
   Serial.println("Moving forward to bypass obstacle...");
-  setMotorSpeed(MOTOR_SPEED/1.8, MOTOR_SPEED/1.8);
-  delay(1500);
+  setMotorSpeed(MOTOR_SPEED / 2, MOTOR_SPEED / 2);
+  startTime = millis();
+  while (millis() - startTime < 500) {
+    checkobstacle();
 
-  stopMotors();
-
-  // Step 3: Pivot right to realign with path
-  Serial.println("Realigning right...");
-  setMotorSpeed(TURN_SPEED, -TURN_SPEED);
-  delay(700);
-
-  stopMotors();
-
-  // Step 4: Move forward again to ensure clearance
-  Serial.println("Moving forward again...");
-  setMotorSpeed(MOTOR_SPEED, MOTOR_SPEED);
-  delay(500);
-
-  stopMotors();
-
-  // Step 6: Line search
-  Serial.println("Searching for line...");
-
-  // Step 4: Move forward and look for the line
-  unsigned long startTime = millis();
-  unsigned long maxDuration = 1500;
-  setMotorSpeed(MOTOR_SPEED/1.8, MOTOR_SPEED/1.8);
-
-  while (millis() - startTime < maxDuration) {
     int leftIR = digitalRead(irLeft);
     int rightIR = digitalRead(irRight);
-
     if (leftIR == HIGH || rightIR == HIGH) {
       stopMotors();
-
-      if (leftIR == HIGH && rightIR == LOW) lastSeenLine = LEFT;
-      else if (rightIR == HIGH && leftIR == LOW) lastSeenLine = RIGHT;
-
       currentState = FORWARD;
       return;
     }
+    delay(10);
+  }
+  stopMotors();
+
+  // Another forward step with searchForLineDuringWindow
+  if (searchForLineDuringWindow(500)) {
+    return;
+  }
+
+  stopMotors();
+  checkobstacle();
+
+  // Pivot right to realign with path
+  Serial.println("Realigning right...");
+  setMotorSpeed(TURN_SPEED, -TURN_SPEED);
+  startTime = millis();
+  while (millis() - startTime < 700) {
+    checkobstacle();
+
+    int leftIR = digitalRead(irLeft);
+    int rightIR = digitalRead(irRight);
+    if (leftIR == HIGH || rightIR == HIGH) {
+      stopMotors();
+      currentState = FORWARD;
+      return;
+    }
+    delay(10);
+  }
+  stopMotors();
+
+  checkobstacle();
+
+  // Move forward again to ensure clearance
+  Serial.println("Moving forward again...");
+  setMotorSpeed(MOTOR_SPEED, MOTOR_SPEED);
+  startTime = millis();
+  while (millis() - startTime < 500) {
+    checkobstacle();
+
+    int leftIR = digitalRead(irLeft);
+    int rightIR = digitalRead(irRight);
+    if (leftIR == HIGH || rightIR == HIGH) {
+      stopMotors();
+      currentState = FORWARD;
+      return;
+    }
+    delay(10);
+  }
+  stopMotors();
+
+  checkobstacle();
+
+  // Final line search with searchForLineDuringWindow
+  Serial.println("Searching for line...");
+  if (searchForLineDuringWindow(1500)) {
+    return;
   }
 
   stopMotors();
@@ -255,7 +297,6 @@ void avoidObstacle() {
       currentState = FORWARD;
       return;
     }
-    
 
     Serial.println(" → Sweep left");
     setMotorSpeed(-TURN_SPEED, TURN_SPEED);
@@ -294,6 +335,7 @@ void avoidObstacle() {
   Serial.println("Line not found after search pattern. Stopping.");
   currentState = STOP;
 }
+
 
 
 // === Helper functions ===
@@ -384,4 +426,27 @@ int readFrequency(bool s2, bool s3) {
   digitalWrite(S3, s3);
   delay(50);
   return pulseIn(sensorOut, LOW);
+}
+
+bool searchForLineDuringWindow(unsigned long maxDuration) {
+  unsigned long startTime = millis();
+  setMotorSpeed(MOTOR_SPEED / 1.8, MOTOR_SPEED / 1.8);
+
+  while (millis() - startTime < maxDuration) {
+    int leftIR = digitalRead(irLeft);
+    int rightIR = digitalRead(irRight);
+
+    if (leftIR == HIGH || rightIR == HIGH) {
+      stopMotors();
+
+      if (leftIR == HIGH && rightIR == LOW) lastSeenLine = LEFT;
+      else if (rightIR == HIGH && leftIR == LOW) lastSeenLine = RIGHT;
+
+      currentState = FORWARD;
+      return true;
+    }
+  }
+
+  stopMotors();
+  return false;
 }
