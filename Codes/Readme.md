@@ -1,4 +1,4 @@
-# Arduino Modular Robot System
+# Arduino UNO R4 WiFI Modular Robot System
 
 This project is a modular, extensible robot control system based on:
 
