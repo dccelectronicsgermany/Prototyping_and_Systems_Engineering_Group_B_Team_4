@@ -34,7 +34,6 @@ void MovementController::act(MovementState state) {
       int error = leftIRSensor.isLineDetected() - rightIRSensor.isLineDetected();
       float correction = pid.compute(error);
 
-      int baseSpeed = 100;
       int leftSpeed = constrain(baseSpeed - correction, 0, 255);
       int rightSpeed = constrain(baseSpeed + correction, 0, 255);
       motorController.setSpeed(leftSpeed, rightSpeed);
@@ -42,11 +41,11 @@ void MovementController::act(MovementState state) {
     }
 
     case SEARCH_LEFT:
-      motorController.setSpeed(-60, 60);
+      motorController.setSpeed(-searchSpeed, searchSpeed);
       break;
 
     case SEARCH_RIGHT:
-      motorController.setSpeed(60, -60);
+      motorController.setSpeed(searchSpeed, -searchSpeed);
       break;
   }
 }
