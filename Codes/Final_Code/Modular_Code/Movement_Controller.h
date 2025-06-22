@@ -27,6 +27,9 @@ class MovementController {
     PIDController& pid;
     MovementState currentState = STOP;
     LastSeen lastSeenLine = NONE;
+    
+    int searchSpeed = 60;
+    int baseSpeed = 100;
 };
 
 #endif
