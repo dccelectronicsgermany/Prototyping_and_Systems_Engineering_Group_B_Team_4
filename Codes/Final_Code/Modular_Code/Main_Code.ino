@@ -52,8 +52,6 @@ ObstacleChecker obstacleChecker(leftUltrasonic, rightUltrasonic, colorSensor);
 ObstacleHandler obstacleHandler(motorController, movementController, obstacleChecker,
                                 leftIRSensor, rightIRSensor);
 
-
-
 // === Color Calibration Data ===
 ColorCalibration colorA = {0.595, 0.585};
 ColorCalibration colorB = {0.561, 0.541};
@@ -75,44 +73,33 @@ void setup() {
 }
 
 void loop() {
-  // Check for obstacle
+  // Check for obstacles
   obstacleChecker.check();
 
   if (obstacleChecker.isObstacleDetected()) {
     motorController.stop();
     delay(100);
-    obstacleChecker.check(false);  // Detect color while stopped
+    obstacleChecker.check(false);  // Check color while stopped
 
     char color = obstacleChecker.getLastDetectedColor();
     if (color == 'A') {
       Serial.println("Action: STOP for Color A");
-      movementController.setCurrentState(STOP);
     } else if (color == 'B') {
       Serial.println("Action: AVOID OBSTACLE for Color B");
       obstacleHandler.handleObstacle();
     }
-    return;  // Skip line-following for this cycle
   }
 
-  // No obstacle, continue with line following
-  bool leftIR = leftIRSensor.isLineDetected();
-  bool rightIR = rightIRSensor.isLineDetected();
+  // Update movement state (IR + obstacle + color)
+  movementController.updateState(
+    obstacleChecker.isObstacleDetected(),
+    obstacleChecker.getLastDetectedColor(),
+    movementController.getCurrentStateRef(),
+    movementController.getLastSeenRef()
+  );
 
-  // Update last seen line position
-  if (leftIR && !rightIR) movementController.getLastSeenRef() = LEFT;
-  else if (rightIR && !leftIR) movementController.getLastSeenRef() = RIGHT;
-
-  // Determine current movement state
-  if (!leftIR && !rightIR) {
-    LastSeen lastSeen = movementController.getLastSeenRef();
-    if (lastSeen == LEFT) movementController.setCurrentState(SEARCH_LEFT);
-    else if (lastSeen == RIGHT) movementController.setCurrentState(SEARCH_RIGHT);
-    else movementController.setCurrentState(STOP);
-  } else {
-    movementController.setCurrentState(FORWARD);
-  }
-
-  // Execute movement
+  // Act based on the current movement state
   movementController.act(movementController.getCurrentState());
 }
+
 
