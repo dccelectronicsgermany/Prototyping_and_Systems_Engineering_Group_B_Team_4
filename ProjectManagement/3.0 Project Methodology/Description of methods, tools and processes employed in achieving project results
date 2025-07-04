@@ -1,1 +1,50 @@
+\section{Methodology}
 
+The development of the autonomous robotic vehicle was carried out in structured phases, covering mechanical design, sensor calibration, embedded software development, and iterative testing.
+
+\subsection{Hardware Design}
+
+A two-wheeled differential drive robotic chassis was constructed, integrating essential components for autonomous navigation and decision-making. The key hardware includes:
+
+\begin{itemize}
+    \item \textbf{Arduino Uno R4} Microcontroller – acts as the central control unit for all peripherals.
+    \item \textbf{IR sensors} – detect the contrast between the lane and the background.
+    \item \textbf{Ultrasonic sensors (HC-SR04)} – provide obstacle distance measurements for real-time avoidance.
+    \item \textbf{Color sensor (TCS3200)} – a color-to-frequency converter used to detect the color of objects based on RGB reflectance.
+    \item \textbf{SBC Motor Driver 2} – controls the motors with suitable current and voltage for bidirectional motion.
+    \item \textbf{12V LiPo battery with switch} – powers the entire system, providing consistent voltage and current for reliable operation.
+\end{itemize}
+
+The mechanical frame, including chassis structure, sensor holders, and battery mounts, was designed using \textbf{SolidWorks}. This CAD-based approach ensured accurate placement, structural integrity, and modular design for component accessibility and replacement.
+
+\subsection{Sensor Calibration and Integration}
+
+All sensors were calibrated and tested before integration to ensure accurate data acquisition and system stability:
+
+\begin{itemize}
+    \item \textbf{IR Sensors:} Tuned to detect lane boundaries using reflectance-based thresholding, optimized for the test surface.
+    \item \textbf{Ultrasonic Sensors:} Configured with distance thresholds to trigger avoidance behavior when obstacles are within proximity.
+    \item \textbf{Color Sensor (TCS3200):} Calibrated using reference color samples. The sensor uses photodiodes with RGB filters and outputs a frequency proportional to the intensity of each component. Color classification was achieved by comparing frequency ratios of red, green, and blue channels.
+\end{itemize}
+
+\subsection{Software Development}
+
+Firmware was written using the Arduino IDE in C++, with a modular structure for sensor reading, motor control, and decision logic:
+
+\begin{itemize}
+    \item \textbf{Lane Following:} Implemented with basic PID logic to maintain position within the lane using IR sensor input.
+    \item \textbf{Obstacle Avoidance:} Ultrasonic data triggered directional changes when obstacles were detected within a predefined range.
+    \item \textbf{Color-Based Behavior:} TCS3200 output was analyzed to determine object color and adjust behavior accordingly—e.g., stopping or rerouting.
+\end{itemize}
+
+\subsection{Testing and Iteration}
+
+The system was tested under different physical and environmental conditions to ensure functionality and robustness:
+
+\begin{itemize}
+    \item \textbf{Sensor Accuracy:} Each sensor’s performance was verified under varying lighting and surface reflectivity conditions.
+    \item \textbf{Navigation Robustness:} Evaluated system behavior during lane exits, sharp turns, and reentry, ensuring consistent responsiveness.
+    \item \textbf{Environmental Adaptability:} Testing included both indoor and semi-outdoor environments to assess sensor stability and overall system reliability.
+\end{itemize}
+
+Each iteration guided hardware and software refinements, with component placements and mountings reworked in \textbf{SolidWorks} for better alignment and stability, resulting in a reliable and efficient robotic system
