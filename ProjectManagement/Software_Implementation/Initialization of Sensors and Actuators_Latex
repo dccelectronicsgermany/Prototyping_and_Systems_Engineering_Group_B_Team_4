@@ -1,0 +1,126 @@
+\subsection{Sensor and Actuator Initialization (Part A)}
+
+This section describes the initialization of the main hardware components: DC motors, IR sensors, ultrasonic sensors, and a color sensor. Each component is encapsulated in a class with a modular `begin()` method to configure the required pins, ensuring clean and reusable code.
+
+\subsubsection*{1) Motor Initialization}
+
+The `begin()` method sets the motor's enable and direction pins as OUTPUT to allow control via PWM and digital signals.
+
+\begin{lstlisting}[language=C++, caption=Motor::begin() function]
+void Motor::begin() {
+  pinMode(_enPin, OUTPUT);
+  pinMode(_in1Pin, OUTPUT);
+  pinMode(_in2Pin, OUTPUT);
+}
+\end{lstlisting}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.45\textwidth]{Motor_init.png}
+\caption{Motor Initialization}
+\end{figure}
+
+\subsubsection*{2) IR Sensor Initialization}
+
+The IR sensor pin is configured as an INPUT to detect digital signals representing black or white surfaces beneath the sensor.
+
+\begin{lstlisting}[language=C++, caption=IRSensor::begin() function]
+void IRSensor::begin() {
+  pinMode(_pin, INPUT);
+}
+\end{lstlisting}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.45\textwidth]{IR_init.png}
+\caption{IR Sensor Initialization}
+\end{figure}
+
+\subsubsection*{3) Ultrasonic Sensor Initialization}
+
+The trigger pin sends an ultrasonic pulse, and the echo pin listens for the reflected signal. This time delay is used to calculate the distance to nearby objects.
+
+\begin{lstlisting}[language=C++, caption=UltrasonicSensor::begin() function]
+void UltrasonicSensor::begin() {
+  pinMode(_trigPin, OUTPUT);
+  pinMode(_echoPin, INPUT);
+}
+\end{lstlisting}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.45\textwidth]{Ultrasonic_init.png}
+\caption{Ultrasonic Sensor Initialization}
+\end{figure}
+
+\subsubsection*{4) Color Sensor Initialization}
+
+The color sensor has several control pins for filter selection and frequency scaling. These are set to OUTPUT, while the data output pin is configured as INPUT. The scaling is set to 20\% by setting \_s0 HIGH and \_s1 LOW.
+
+\begin{lstlisting}[language=C++, caption=ColorSensor::begin() function]
+void ColorSensor::begin() {
+  pinMode(_s0, OUTPUT);
+  pinMode(_s1, OUTPUT);
+  pinMode(_s2, OUTPUT);
+  pinMode(_s3, OUTPUT);
+  pinMode(_outPin, INPUT);
+
+  digitalWrite(_s0, HIGH);
+  digitalWrite(_s1, LOW);
+}
+\end{lstlisting}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.45\textwidth]{Color_init.png}
+\caption{Color Sensor Initialization}
+\end{figure}
+
+\subsubsection*{5) Arduino Main \texttt{setup()} Function}
+
+All sensor and actuator classes are initialized in the Arduino \texttt{setup()} function, which runs once when the board powers on or resets.
+
+\begin{lstlisting}[language=C++, caption=Full setup() Function for Initialization]
+void setup() {
+  Serial.begin(9600);
+
+  // Initialize sensors
+  leftIRSensor.begin();
+  rightIRSensor.begin();
+  leftUltrasonic.begin();
+  rightUltrasonic.begin();
+  colorSensor.begin();
+
+  // Initialize motors
+  leftMotor.begin();
+  rightMotor.begin();
+
+  // Initial behavior
+  motorController.stop(); // Ensure motors are off at startup
+  obstacleChecker.setColorCalibration(colorA, colorB);
+}
+\end{lstlisting}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.48\textwidth]{Setup_init.png}
+\caption{Overview of Arduino setup function showing initialization of all modules}
+\label{fig:arduino_setup}
+\end{figure}
+
+\begin{table}[ht]
+\centering
+\caption{Pin Modes Summary for Initialization}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Component} & \textbf{Pin(s)} & \textbf{Mode} \\
+\hline
+Motor & \_enPin, \_in1Pin, \_in2Pin & OUTPUT \\
+IR Sensor & \_pin & INPUT \\
+Ultrasonic Sensor & \_trigPin & OUTPUT \\
+                 & \_echoPin & INPUT \\
+Color Sensor & \_s0, \_s1, \_s2, \_s3 & OUTPUT \\
+             & \_outPin & INPUT \\
+\hline
+\end{tabular}
+\end{table}
