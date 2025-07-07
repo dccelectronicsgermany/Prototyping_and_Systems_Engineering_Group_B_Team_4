@@ -17,7 +17,7 @@ void Motor::begin() {
 % Uncomment and replace with actual image file name
 % \begin{figure}[ht]
 % \centering
-% \includegraphics[width=0.45\textwidth]{motor_init.png}
+% \includegraphics[width=0.45\textwidth]{Motor_init.png}
 % \caption{Motor Initialization}
 % \end{figure}
 
@@ -34,7 +34,7 @@ void IRSensor::begin() {
 % Uncomment and replace with actual image file name
 % \begin{figure}[ht]
 % \centering
-% \includegraphics[width=0.45\textwidth]{ir_init.png}
+% \includegraphics[width=0.45\textwidth]{IR_init.png}
 % \caption{IR Sensor Initialization}
 % \end{figure}
 
@@ -52,7 +52,7 @@ void UltrasonicSensor::begin() {
 % Uncomment and replace with actual image file name
 % \begin{figure}[ht]
 % \centering
-% \includegraphics[width=0.45\textwidth]{ultrasonic_init.png}
+% \includegraphics[width=0.45\textwidth]{Ultrasonic_init.png}
 % \caption{Ultrasonic Sensor Initialization}
 % \end{figure}
 
@@ -76,7 +76,7 @@ void ColorSensor::begin() {
 % Uncomment and replace with actual image file name
 % \begin{figure}[ht]
 % \centering
-% \includegraphics[width=0.45\textwidth]{color_init.png}
+% \includegraphics[width=0.45\textwidth]{Color_init.png}
 % \caption{Color Sensor Initialization}
 % \end{figure}
 
@@ -104,6 +104,14 @@ void setup() {
   obstacleChecker.setColorCalibration(colorA, colorB);
 }
 \end{lstlisting}
+
+% Uncomment and replace with actual image file name
+% \begin{figure}[ht]
+% \centering
+% \includegraphics[width=0.48\textwidth]{Setup_init.png}
+% \caption{Overview of Arduino setup function showing initialization of all modules}
+% \label{fig:arduino_setup}
+% \end{figure}
 
 \begin{table}[ht]
 \centering
