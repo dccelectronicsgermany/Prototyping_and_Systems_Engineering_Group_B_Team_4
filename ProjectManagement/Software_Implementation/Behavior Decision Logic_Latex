@@ -79,12 +79,6 @@ if (detected == 'A') {
 }
 \end{lstlisting}
 
-\begin{figure}[ht]
-\centering
-\includegraphics[width=0.45\textwidth]{color_decision.png}
-\caption{Behavioral decision based on color detection at obstacle}
-\end{figure}
-
 \subsubsection*{4) Obstacle Avoidance Strategy}
 
 When an obstacle is detected and color 'B' is identified, the robot performs a bypass routine that includes:
