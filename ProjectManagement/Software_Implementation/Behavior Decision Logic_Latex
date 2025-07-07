@@ -21,7 +21,7 @@ if (obstacleDetected && lastDetectedColor == 'A') {
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.48\textwidth]{state_transition.png}
+\includegraphics[width=0.48\textwidth]{Update_state.png}
 \caption{State transition flow based on sensor readings}
 \end{figure}
 
