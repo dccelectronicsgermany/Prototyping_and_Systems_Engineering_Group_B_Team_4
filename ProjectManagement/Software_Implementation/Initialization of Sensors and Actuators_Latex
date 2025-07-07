@@ -14,12 +14,11 @@ void Motor::begin() {
 }
 \end{lstlisting}
 
-% Uncomment and replace with actual image file name
-% \begin{figure}[ht]
-% \centering
-% \includegraphics[width=0.45\textwidth]{Motor_init.png}
-% \caption{Motor Initialization}
-% \end{figure}
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.45\textwidth]{Motor_init.png}
+\caption{Motor Initialization}
+\end{figure}
 
 \subsubsection*{2) IR Sensor Initialization}
 
@@ -31,12 +30,11 @@ void IRSensor::begin() {
 }
 \end{lstlisting}
 
-% Uncomment and replace with actual image file name
-% \begin{figure}[ht]
-% \centering
-% \includegraphics[width=0.45\textwidth]{IR_init.png}
-% \caption{IR Sensor Initialization}
-% \end{figure}
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.45\textwidth]{IR_init.png}
+\caption{IR Sensor Initialization}
+\end{figure}
 
 \subsubsection*{3) Ultrasonic Sensor Initialization}
 
@@ -49,12 +47,11 @@ void UltrasonicSensor::begin() {
 }
 \end{lstlisting}
 
-% Uncomment and replace with actual image file name
-% \begin{figure}[ht]
-% \centering
-% \includegraphics[width=0.45\textwidth]{Ultrasonic_init.png}
-% \caption{Ultrasonic Sensor Initialization}
-% \end{figure}
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.45\textwidth]{Ultrasonic_init.png}
+\caption{Ultrasonic Sensor Initialization}
+\end{figure}
 
 \subsubsection*{4) Color Sensor Initialization}
 
@@ -73,12 +70,11 @@ void ColorSensor::begin() {
 }
 \end{lstlisting}
 
-% Uncomment and replace with actual image file name
-% \begin{figure}[ht]
-% \centering
-% \includegraphics[width=0.45\textwidth]{Color_init.png}
-% \caption{Color Sensor Initialization}
-% \end{figure}
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.45\textwidth]{Color_init.png}
+\caption{Color Sensor Initialization}
+\end{figure}
 
 \subsubsection*{5) Arduino Main \texttt{setup()} Function}
 
@@ -105,13 +101,12 @@ void setup() {
 }
 \end{lstlisting}
 
-% Uncomment and replace with actual image file name
-% \begin{figure}[ht]
-% \centering
-% \includegraphics[width=0.48\textwidth]{Setup_init.png}
-% \caption{Overview of Arduino setup function showing initialization of all modules}
-% \label{fig:arduino_setup}
-% \end{figure}
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.48\textwidth]{Setup_init.png}
+\caption{Overview of Arduino setup function showing initialization of all modules}
+\label{fig:arduino_setup}
+\end{figure}
 
 \begin{table}[ht]
 \centering
