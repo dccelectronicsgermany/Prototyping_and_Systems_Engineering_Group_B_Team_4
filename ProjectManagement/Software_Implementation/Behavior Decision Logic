@@ -1,0 +1,47 @@
+\subsection{Behavioral Decision Logic (Part C)}
+
+This logic determines the robot’s current movement state (`STOP`, `FORWARD`, etc.) based on environmental cues such as IR sensors, ultrasonic proximity readings, and detected color. It acts as the brain of the robot, coordinating inputs and determining the appropriate state.
+
+\subsubsection*{1) State Transition Logic}
+
+The robot transitions between movement states based on IR sensors, color detection, and obstacle presence.
+
+\begin{lstlisting}[language=C++, caption=State Transition Logic]
+if (obstacleDetected && lastDetectedColor == 'A') {
+  currentState = STOP;
+} else if (obstacleDetected && lastDetectedColor == 'B') {
+  currentState = FORWARD;
+} else if (!leftIR && !rightIR) {
+  currentState = (lastSeenRef == LEFT) ? SEARCH_LEFT : 
+                 (lastSeenRef == RIGHT) ? SEARCH_RIGHT : STOP;
+} else {
+  currentState = FORWARD;
+}
+\end{lstlisting}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.48\textwidth]{state_transition.png}
+\caption{State transition flow based on sensor readings}
+\end{figure}
+
+\subsubsection*{2) Obstacle and Color-Based Behavior}
+
+Color detection is used to modify robot behavior at obstacles:
+
+- If color 'A' is detected: the robot halts.
+- If color 'B' is detected: it initiates an obstacle avoidance maneuver.
+
+\begin{lstlisting}[language=C++, caption=Behavior Based on Detected Color]
+if (detected == 'A') {
+  currentState = STOP;
+} else if (detected == 'B') {
+  avoidObstacle(); // Custom path re-routing
+}
+\end{lstlisting}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.45\textwidth]{color_decision.png}
+\caption{Behavioral decision based on color detection at obstacle}
+\end{figure}
