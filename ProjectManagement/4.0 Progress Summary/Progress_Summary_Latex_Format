@@ -5,10 +5,10 @@ The project successfully reached completion after progressing through several st
 
 \begin{itemize}
     \item \textbf{Mechanical Design:}  
-    The project began with the mechanical setup. Custom holders for sensors and the battery were designed using SolidWorks and fabricated to ensure secure and precise placement. This provided a stable and modular foundation for further assembly.
+    The project began with systems engineering training and receipt of the project requirement from the professor. Thereafter,the mechanical parts were received in the lab. Custom holders for sensors and the battery were designed by us using SolidWorks and fabricated using 3D-printer. This additional parts provided a stable and modular foundation for effective assembly and efficient performance of our vehicle.
 
     \item \textbf{Component Integration:}  
-    Once the frame and holders were ready, each electronic component was tested individually. The IR sensors, ultrasonic sensors, TCS3200 color sensor, motor driver (SBC Motor Driver 2), and 12V LiPo battery were all verified for functionality before being integrated into the system.
+    Once the frame and holders were ready, each electronic component was tested individually. The IR sensors, ultrasonic sensors, TCS3200 color sensor, motor driver (SBC Motor Driver 2), and 12V LiPo battery were all verified for functionality before being integrated into the autonomous vehicle system.
 
     \item \textbf{Core Functionality Development:}  
     With hardware in place, development moved to software. The robot was programmed to follow a predefined lane using IR sensors, followed by ultrasonic-based obstacle detection within a 25 cm range. The TCS3200 color sensor was calibrated to distinguish between obstacle types (Color A and Color B), enabling the robot to take appropriate actions based on object color.
