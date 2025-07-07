@@ -1,0 +1,81 @@
+\subsection{Movement Control Algorithms (Part B)}
+
+This section describes how the robot interprets line sensor data and controls its motors using a PID (Proportional–Integral–Derivative) algorithm. The control logic adjusts the motor speeds based on the difference in line detection between the left and right IR sensors.
+
+\subsubsection*{1) PID Control Computation}
+
+The PID controller calculates a correction based on the current error (difference between left and right sensor readings), the accumulated integral, and the rate of change (derivative). This correction is applied to the motor speeds to maintain alignment with the black line.
+
+\begin{lstlisting}[language=C++, caption=PIDController::compute() function]
+float PIDController::compute(float error) {
+  float derivative = error - _previousError;
+  _integral += error;
+  float output = _kp * error + _ki * _integral + _kd * derivative;
+  _previousError = error;
+  return output;
+}
+\end{lstlisting}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.48\textwidth]{PID_control.png}
+\caption{PID correction logic applied to motor speeds based on IR error}
+\end{figure}
+
+\subsubsection*{2) Forward Movement with PID}
+
+When the robot detects the line beneath at least one sensor, it moves forward. The base speed is modified by the PID correction value to steer the robot gently left or right.
+
+\begin{lstlisting}[language=C++, caption=Forward Line Following using PID]
+int error = leftIRSensor.isLineDetected() - rightIRSensor.isLineDetected();
+float correction = pid.compute(error);
+
+int leftSpeed = constrain(baseSpeed - correction, 0, 255);
+int rightSpeed = constrain(baseSpeed + correction, 0, 255);
+
+motorController.setSpeed(leftSpeed, rightSpeed);
+\end{lstlisting}
+
+\subsubsection*{2) Movement State Handling: Forward, Search, and Stop}
+
+ The robot's main movement behavior is determined by its `MovementState`, which is one of: `FORWARD`, `SEARCH_LEFT`, `SEARCH_RIGHT`, or `STOP`.
+
+\begin{itemize}
+  \item \textbf{FORWARD:} Normal movement with PID correction when the line is visible.
+  \item \textbf{SEARCH\_LEFT / SEARCH\_RIGHT:} Triggered when the line is lost; the robot rotates in place to reacquire it.
+  \item \textbf{STOP:} The robot halts all movement (e.g., when an obstacle is detected and a red color is identified).
+\end{itemize}
+
+The following `switch` block illustrates how the robot transitions between these behaviors:
+
+\begin{lstlisting}[language=C++, caption=Movement State Handling]
+switch (currentState) {
+  case FORWARD: {
+    int error = leftIRSensor.isLineDetected() - rightIRSensor.isLineDetected();
+    float correction = pid.compute(error);
+
+    int leftSpeed = constrain(baseSpeed - correction, 0, 255);
+    int rightSpeed = constrain(baseSpeed + correction, 0, 255);
+    motorController.setSpeed(leftSpeed, rightSpeed);
+    break;
+  }
+
+  case SEARCH_LEFT:
+    motorController.setSpeed(-searchSpeed, searchSpeed);
+    break;
+
+  case SEARCH_RIGHT:
+    motorController.setSpeed(searchSpeed, -searchSpeed);
+    break;
+
+  case STOP:
+    motorController.stop();
+    break;
+}
+\end{lstlisting}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.45\textwidth]{search_logic.png}
+\caption{Movement state transitions for line recovery and stopping}
+\end{figure}
