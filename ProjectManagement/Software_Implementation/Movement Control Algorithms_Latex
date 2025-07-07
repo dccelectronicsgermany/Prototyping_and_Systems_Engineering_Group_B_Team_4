@@ -76,6 +76,6 @@ switch (currentState) {
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.45\textwidth]{search_logic.png}
+\includegraphics[width=0.45\textwidth]{Act_state.png}
 \caption{Movement state transitions for line recovery and stopping}
 \end{figure}
