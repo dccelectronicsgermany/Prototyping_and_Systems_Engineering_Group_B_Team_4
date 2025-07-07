@@ -1,0 +1,24 @@
+\section{Team Performance}
+
+We worked extremely hard and also invested significant time in testing and re-testing to ensure that our modest design meets the core aim of the project, which is:
+
+\begin{quote}
+\textbf{The ability of our designed robot to perform the following tasks successfully:}
+\end{quote}
+
+\begin{enumerate}[label=\alph*)]
+    \item To follow a dark lane and travel through an oval path.
+    \item To sense and detect an obstacle and follow our desired instructions programmed in Arduino IDE~\cite{arduino}.
+    \item To avoid obstacles it sensed, return back to the lane, and continue its travel via the assigned tracks.
+\end{enumerate}
+
+In the Group A and Group B teams' racing and obstacle avoidance contest, we won the competition with a record travel time of less than \textbf{29 seconds} across the oval track.
+
+\subsection*{Future Trajectory}
+
+We aim to investigate further into robotics by applying the skills acquired in this course and project to design a car with similar capabilities. This new system will integrate additional features such as artificial intelligence and real-life camera sensing devices.
+
+We highly recommend this course to any Electrical and Electronic Engineering student, or indeed to any innovative-minded individual. There should be no limits if we push hard with unwavering effort.
+
+\bibliographystyle{IEEEtran}
+\bibliography{references} % Add a references.bib file with Arduino citation
