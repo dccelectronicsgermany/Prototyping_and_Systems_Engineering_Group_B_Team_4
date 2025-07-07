@@ -2,9 +2,48 @@
 
 This logic determines the robot’s current movement state (`STOP`, `FORWARD`, etc.) based on environmental cues such as IR sensors, ultrasonic proximity readings, and detected color. It acts as the brain of the robot, coordinating inputs and determining the appropriate state.
 
-\subsubsection*{1) State Transition Logic}
+\subsubsection*{1) Main \texttt{loop()} Function Overview}
 
-The robot transitions between movement states based on IR sensors, color detection, and obstacle presence.
+The Arduino \texttt{loop()} function continuously checks for obstacles, updates the robot’s movement state, and triggers the appropriate behavior. It integrates obstacle detection and avoidance with line-following.
+
+\begin{lstlisting}[language=C++, caption=Main loop() Execution Flow]
+void loop() {
+  obstacleChecker.check();
+
+  if (obstacleChecker.isObstacleDetected()) {
+    motorController.stop();
+    delay(100);
+    obstacleChecker.check(false);  // Check color while stopped
+
+    char color = obstacleChecker.getLastDetectedColor();
+    if (color == 'A') {
+      Serial.println("Action: STOP for Color A");
+    } else if (color == 'B') {
+      Serial.println("Action: AVOID OBSTACLE for Color B");
+      obstacleHandler.handleObstacle();
+    }
+  }
+
+  movementController.updateState(
+    obstacleChecker.isObstacleDetected(),
+    obstacleChecker.getLastDetectedColor(),
+    movementController.getCurrentStateRef(),
+    movementController.getLastSeenRef()
+  );
+
+  movementController.act(movementController.getCurrentState());
+}
+\end{lstlisting}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.48\textwidth]{main_loop.png}
+\caption{Control flow inside the loop() function}
+\end{figure}
+
+\subsubsection*{2) State Transition Logic}
+
+The robot transitions between movement states based on IR sensors, color detection, and obstacle presence. This decision logic ensures context-aware behavior.
 
 \begin{lstlisting}[language=C++, caption=State Transition Logic]
 if (obstacleDetected && lastDetectedColor == 'A') {
@@ -25,12 +64,12 @@ if (obstacleDetected && lastDetectedColor == 'A') {
 \caption{State transition flow based on sensor readings}
 \end{figure}
 
-\subsubsection*{2) Obstacle and Color-Based Behavior}
+\subsubsection*{3) Obstacle and Color-Based Behavior}
 
-Color detection is used to modify robot behavior at obstacles:
+Color detection influences behavior at obstacles:
 
-- If color 'A' is detected: the robot halts.
-- If color 'B' is detected: it initiates an obstacle avoidance maneuver.
+- \textbf{Color 'A'}: indicates a zone to stop. The robot halts all motion.
+- \textbf{Color 'B'}: triggers the obstacle avoidance maneuver defined in the next subsection.
 
 \begin{lstlisting}[language=C++, caption=Behavior Based on Detected Color]
 if (detected == 'A') {
@@ -45,3 +84,71 @@ if (detected == 'A') {
 \includegraphics[width=0.45\textwidth]{color_decision.png}
 \caption{Behavioral decision based on color detection at obstacle}
 \end{figure}
+
+\subsubsection*{4) Obstacle Avoidance Strategy}
+
+When an obstacle is detected and color 'B' is identified, the robot performs a bypass routine that includes:
+
+\begin{enumerate}
+    \item Reversing for a short distance.
+    \item Pivoting left to clear the obstacle.
+    \item Moving forward to bypass it.
+    \item If the line is not reacquired, pivot right and try again.
+    \item If all fails, enter a sweep search routine.
+\end{enumerate}
+
+The robot scans using both IR sensors while executing this sequence. Each step includes calls to \texttt{searchForLine()} to resume line-following as early as possible.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.48\textwidth]{obstacle_avoidance.png}
+\caption{Obstacle avoidance path when color 'B' is detected}
+\end{figure}
+
+\subsubsection*{5) Line Recovery Strategy During Obstacle Avoidance}
+
+After bypassing an obstacle, the robot uses a multi-phase recovery strategy to reacquire the black line:
+
+\begin{itemize}
+    \item \textbf{Immediate Scan:} After any avoidance move, the robot drives forward while scanning with IR sensors.
+    \item \textbf{Realignment:} If unsuccessful, the robot pivots in the opposite direction and checks again.
+    \item \textbf{Sweep Pattern:}
+    \begin{itemize}
+        \item Nudge forward.
+        \item Sweep left — check IR.
+        \item Sweep right — check IR.
+        \item Return to center.
+        \item Repeat up to three times.
+    \end{itemize}
+    \item \textbf{Fail-safe:} If still not found, the robot enters STOP state.
+\end{itemize}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.48\textwidth]{Line_leftsearch.png}
+\caption{Line recovering sweep pattern after obstacle bypass}
+\end{figure}
+
+\begin{lstlisting}[language=C++, caption=Line Recovery with searchForLine()]
+bool ObstacleHandler::searchForLine(unsigned long maxDuration) {
+  unsigned long startTime = millis();
+  motorController.setSpeed(60, 60);
+  while (millis() - startTime < maxDuration) {
+    bool leftIR = leftIRSensor.isLineDetected();
+    bool rightIR = rightIRSensor.isLineDetected();
+    if (leftIR || rightIR) {
+      motorController.stop();
+      if (leftIR && !rightIR) movementController.getLastSeenRef() = LEFT;
+      else if (rightIR && !leftIR) movementController.getLastSeenRef() = RIGHT;
+      movementController.setCurrentState(FORWARD);
+      return true;
+    }
+    delay(10);
+  }
+  motorController.stop();
+  return false;
+}
+\end{lstlisting}
+
+This logic ensures that the robot behaves intelligently after detours, improving reliability during autonomous navigation.
+
